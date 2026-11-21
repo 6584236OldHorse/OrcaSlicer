@@ -145,18 +145,15 @@ private:
     EType m_current;
     EType m_hover;
     std::pair<EType, bool> m_highlight; // bool true = higlightedShown, false = highlightedHidden
-    // The user's gizmo bar order (EType indices; empty = stock) and hidden flags, from the saved toolbar layout.
-    std::vector<size_t> m_bar_order;
-    std::vector<bool> m_bar_hidden;
-    // The user's gizmo groups, the group whose list is open (-1 for none), and the gizmo ids opened this session,
-    // newest first.
+    // The gizmos the user shows on the bar, in their saved order.
+    std::vector<EType> m_bar_types;
+    // The user's gizmo groups, the open group's list, and the gizmo ids opened this session, newest first.
     std::vector<ToolbarIconGroup> m_groups;
-    int m_open_group{-1};
+    mutable GroupPopupState m_group_popup;
     // The group whose button the tooltip names, or -1.
     int m_tooltip_group{-1};
     std::vector<std::string> m_recent_gizmos;
-    // Written while the list is drawn: its screen rectangle, and the member clicked in it (opened after drawing).
-    mutable Vec4f m_group_list_rect{Vec4f::Zero()};
+    // Written while the list is drawn: the member clicked in it (opened after drawing).
     mutable EType m_group_pending_open{Undefined};
 
     //BBS: GUI refactor: add object manipulation
@@ -170,7 +167,6 @@ private:
     // Opens a gizmo as a click on its bar icon does: Text creates a text object when none is selected.
     void open_from_bar(EType type);
     void render_group_list(int group, float left, float top) const;
-    bool is_hidden_in_bar(size_t idx) const { return idx < m_bar_hidden.size() && m_bar_hidden[idx]; }
     EType get_gizmo_from_mouse(const Vec2d &mouse_pos) const;
 
     bool activate_gizmo(EType type);
@@ -266,6 +262,8 @@ public:
     // The stock rule only (not the user's choice): true when the gizmos are not created yet.
     bool is_bar_item_available(EType type) const;
     static std::string gizmo_id(EType type);
+    // The gizmo with that toolbar layout id, or Undefined.
+    static EType gizmo_type_of(const std::string& id);
 
     bool init_icon_textures();
 
@@ -312,7 +310,7 @@ public:
     // ORCA
     bool is_mouse_over_toolbar_icon(const Vec2d& mouse_pos) const { return get_gizmo_from_mouse(mouse_pos) != Undefined; }
     // A group's list is open; no gizmo is then, as opening either closes the other.
-    bool is_group_list_open() const { return m_open_group >= 0; }
+    bool is_group_list_open() const { return m_group_popup.is_open(); }
     void set_enabled(bool enable) { m_enabled = enable; }
 
     void set_icon_dirty() { m_icons_texture_dirty = true; }
