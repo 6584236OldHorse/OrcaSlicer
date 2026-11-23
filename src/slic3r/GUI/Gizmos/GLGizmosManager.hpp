@@ -164,6 +164,7 @@ private:
     std::vector<ToolbarBarSlot> get_bar_slots() const;
     // The group whose slot shows this gizmo, or -1 (always -1 on the Assemble canvas).
     int group_of_slot(EType type) const;
+    int group_of_slot(EType type, const std::vector<ToolbarBarSlot>& slots) const;
     // Opens a gizmo as a click on its bar icon does: Text creates a text object when none is selected.
     void open_from_bar(EType type);
     void render_group_list(int group, float left, float top) const;
